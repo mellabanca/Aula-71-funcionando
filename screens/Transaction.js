@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, Image, KeyboardAvoidingView, Alert, ToastAndroid } from "react-native";
 import * as Permissions from "expo-permissions";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import db from "../config"
+import db from "../config";
+import firebase from "firebase";
 
 const bgImage = require("../assets/background2.png");
 const appIcon = require("../assets/appIcon.png");
@@ -69,12 +70,7 @@ export default class TransactionScreen extends Component {
         var { bookName, studentName } = this.state;
         this.initiateBookIssue(bookId, studentId, bookName, studentName);
       }  
-        Alert.alert("Livro entregue para o aluno!");
-        this.setState({
-          bookId: "",
-          studentId: ""
-        });
-        
+        Alert.alert("Livro entregue para o aluno!");  
     } else {
       var isEligible = await this.checkStudentEligibilityForBookReturn(bookId,studentId);
       if(isEligible){
@@ -82,10 +78,6 @@ export default class TransactionScreen extends Component {
         this.initiateBookReturn(bookId, studentId, bookName, studentName);
       }  
         Alert.alert("Livro retornado à biblioteca!");
-        this.setState({
-          bookId: "",
-          studentId: ""
-        });
       }
     }
   
@@ -156,7 +148,7 @@ export default class TransactionScreen extends Component {
     .then(snapshot => {
       snapshot.docs.map(doc => {
         this.setState({
-        bookName: doc.data().book_details.book_name
+        bookName: doc.data().book_name
         })
       })
     })
@@ -170,7 +162,7 @@ export default class TransactionScreen extends Component {
     .then(snapshot => {
       snapshot.docs.map(doc => {
         this.setState({
-        studentName: doc.data().student_details.student_name
+        studentName: doc.data().student_name
         })
       })
     })
@@ -223,6 +215,7 @@ export default class TransactionScreen extends Component {
         }
       });
     }
+    return isStudentEligible;
   }
 
   checkStudentEligibilityForBookReturn = async (bookId, studentId) => {
